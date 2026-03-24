@@ -13,6 +13,7 @@ if [ $? -eq 0 ]; then
     echo "   -application actuator: http://localhost:8080/actuator/health"
     echo "   -prometheus: http://localhost:9090/targets"
     echo "   -grafana: http://localhost:3000 (login: admin, password: admin)"
+    echo "   -Kibana: http://localhost:5601 (login: elastic, password: changeme)"
 else
     echo "❌ Une erreur est survenue lors du démarrage de l'application."
 fi
@@ -47,4 +48,15 @@ elif [ "$HTTP_STATUS" -eq 500 ]; then
     echo "❌ Erreur serveur (HTTP 500): $HTTP_BODY"
 else
     echo "❌ Erreur inattendue (HTTP $HTTP_STATUS): $HTTP_BODY"
+fi
+
+# Vérifier que Elasticsearch fonctionne
+HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" http://localhost:9200/_cluster/health)
+HTTP_BODY=$(echo "$HTTP_RESPONSE" | head -n -1)
+HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n 1)
+
+if [ "$HTTP_STATUS" -eq 200 ]; then
+    echo "✅ Elasticsearch est opérationnel (HTTP $HTTP_STATUS)"
+else
+    echo "❌ Problème avec Elasticsearch (HTTP $HTTP_STATUS): $HTTP_BODY"
 fi
