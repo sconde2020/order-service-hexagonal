@@ -2,6 +2,7 @@ package com.example.order.application.service;
 
 import com.example.order.application.command.CreateOrderCommand;
 import com.example.order.application.port.in.CreateOrderUseCase;
+import com.example.order.application.port.out.OrderEventPublisherPort;
 import com.example.order.application.port.out.OrderRepositoryPort;
 import com.example.order.application.result.CreateOrderResult;
 import com.example.order.domain.model.Order;
@@ -12,15 +13,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class CreateOrderService implements CreateOrderUseCase {
 
-     private final OrderRepositoryPort orderRepositoryPort;
-     private final OrderDomainService orderDomainService;
+    private final OrderDomainService orderDomainService;
+    private final OrderRepositoryPort orderRepository;
+     private final OrderEventPublisherPort eventPublisher;
 
      public CreateOrderService(
-             OrderRepositoryPort orderRepositoryPort,
-             OrderDomainService orderDomainService
+             OrderDomainService orderDomainService,
+             OrderRepositoryPort orderRepository,
+             OrderEventPublisherPort eventPublisher
      ) {
-          this.orderRepositoryPort = orderRepositoryPort;
-          this.orderDomainService = orderDomainService;
+         this.orderDomainService = orderDomainService;
+         this.orderRepository = orderRepository;
+         this.eventPublisher = eventPublisher;
      }
 
      @Override
@@ -28,7 +32,9 @@ public class CreateOrderService implements CreateOrderUseCase {
      public CreateOrderResult execute(CreateOrderCommand command) {
        Order order = orderDomainService.buildNewOrder(command.product(), command.quantity());
 
-       Order savedOrder = orderRepositoryPort.save(order);
+       Order savedOrder = orderRepository.save(order);
+
+       eventPublisher.publishOrderCreated(savedOrder);
 
        return new CreateOrderResult(savedOrder.getId(), savedOrder.getProduct(), savedOrder.getQuantity());
      }

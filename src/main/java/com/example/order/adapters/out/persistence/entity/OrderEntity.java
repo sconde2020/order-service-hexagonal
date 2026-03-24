@@ -1,4 +1,4 @@
-package com.example.order.adapters.out.persistence;
+package com.example.order.adapters.out.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
