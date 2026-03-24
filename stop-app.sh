@@ -13,11 +13,18 @@ else
 fi
 
 # Supprimer les images et les volumes associés (optionnel)
-sudo docker compose -f docker-compose.yml down --rmi all -v
+# If an option flag is provided
+if [ "$1" == "--clean" ]; then
+    echo "🧹 Nettoyage des images et des volumes..."
+    sudo docker compose -f docker-compose.yml down --rmi all -v
 
-# Vérifier si les images et les volumes ont été supprimés
-if [ $? -eq 0 ]; then
-    echo "✅ Images et volumes supprimés avec succès."
-else
-    echo "❌ Une erreur est survenue lors de la suppression des images et des volumes."
+    # Vérifier si les images et les volumes ont été supprimés
+    if [ $? -eq 0 ]; then
+        echo "✅ Images et volumes supprimés avec succès."
+    else
+        echo "❌ Une erreur est survenue lors de la suppression des images et des volumes."
+    fi
+
 fi
+
+
