@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service-hexagonal
+  namespace: order-service-hexagonal-ns
+  labels:
+    app: order-service-hexagonal
+spec:
+  type: NodePort
+  selector:
+    app: order-service-hexagonal
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30080
+      name: http

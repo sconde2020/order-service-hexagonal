@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: order-service-hexagonal-ns
+  labels:
+    app: order-service-hexagonal
+data:
+  SPRING_PROFILES_ACTIVE: "docker"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5437/orderdb"
+  SPRING_DATASOURCE_USERNAME: "postgres"
+  SPRING_DATASOURCE_PASSWORD: "postgres"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9096"
+  SPRING_SQL_INIT_MODE: "always"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "create"
+  SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
+  LOGSTASH_HOST: "logstash"
+  # JVM optimization for limited resources
+  JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+UseStringDeduplication -Xss256k"

@@ -1,9 +1,11 @@
 #!/bin/bash
 
+DOCKER_COMPOSE_FILE="docker-compose.yml"
+
 echo "🚀 Arrêt de l'application..."
 
 # Arrêter et supprimer les conteneurs existants (si nécessaire)
-sudo docker compose -f docker-compose.yml down
+sudo docker compose -f $DOCKER_COMPOSE_FILE down
 
 # Vérifier si les conteneurs ont été arrêtés
 if [ $? -eq 0 ]; then
@@ -16,7 +18,7 @@ fi
 # If an option flag is provided
 if [ "$1" == "--clean" ]; then
     echo "🧹 Nettoyage des images et des volumes..."
-    sudo docker compose -f docker-compose.yml down --rmi all -v
+    sudo docker compose -f $DOCKER_COMPOSE_FILE down --rmi all -v
 
     # Vérifier si les images et les volumes ont été supprimés
     if [ $? -eq 0 ]; then

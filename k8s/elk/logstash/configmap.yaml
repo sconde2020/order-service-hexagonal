@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-config
+  namespace: order-service-hexagonal-ns
+  labels:
+    app: logstash
+data:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    xpack.monitoring.elasticsearch.hosts: ["http://elasticsearch:9200"]
+  
+  logstash.conf: |
+    input {
+      tcp {
+        port => 5000
+        codec => json_lines
+      }
+    }
+
+    filter {
+      if [logger_name] {
+        if ![application] {
+          mutate {
+            add_field => { "application" => "order-service-hexagonal" }
+          }
+        }
+
+        if [level] == "ERROR" {
+          mutate {
+            add_tag => ["error"]
+          }
+        }
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch:9200"]
+        index => "order-service-logs-%{+YYYY.MM.dd}"
+      }
+      stdout { codec => rubydebug }
+    }

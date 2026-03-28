@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service-hexagonal
+  namespace: order-service-hexagonal-ns
+  labels:
+    app: order-service-hexagonal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service-hexagonal
+  template:
+    metadata:
+      labels:
+        app: order-service-hexagonal
+    spec:
+      initContainers:
+        # Wait for PostgreSQL to be ready
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z postgres 5437; do echo waiting for postgres; sleep 2; done;']
+        # Wait for Kafka to be ready
+        - name: wait-for-kafka
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z kafka 9096; do echo waiting for kafka; sleep 2; done;']
+        # Wait for Logstash to be ready
+#        - name: wait-for-logstash
+#          image: busybox:1.36
+#          command: ['sh', '-c', 'until nc -z logstash 5000; do echo waiting for logstash; sleep 2; done;']
+      containers:
+        - name: order-service-hexagonal
+          image: order-service-hexagonal:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "$(JAVA_OPTS)"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "192Mi"
+              cpu: "100m"
+            limits:
+              memory: "384Mi"
+              cpu: "250m"

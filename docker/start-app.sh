@@ -1,9 +1,11 @@
 #!/bin/bash
 
+DOCKER_COMPOSE_FILE="docker-compose.yml"
+
 echo "🚀 Démarrage de l'application..."
 
 # Démarrer l'application
-sudo docker compose -f docker-compose.yml up -d
+sudo docker compose -f $DOCKER_COMPOSE_FILE up -d
 
 # Vérifier si les conteneurs ont démarré
 if [ $? -eq 0 ]; then

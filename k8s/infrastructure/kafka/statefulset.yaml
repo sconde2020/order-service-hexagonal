@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  namespace: order-service-hexagonal-ns
+  labels:
+    app: kafka
+spec:
+  serviceName: kafka
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        # Fix permissions on the data directory
+        - name: fix-permissions
+          image: busybox:1.36
+          command: ['sh', '-c', 'chown -R 1000:1000 /var/lib/kafka/data && chmod -R 755 /var/lib/kafka/data']
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: kafka-data
+              mountPath: /var/lib/kafka/data
+        # Format storage with --ignore-formatted
+        - name: format-storage
+          image: apache/kafka:3.7.0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              /opt/kafka/bin/kafka-storage.sh format \
+                --cluster-id MkU3OEVBNTcwNTJENDM2Qk \
+                --config /opt/kafka/config/kraft/server.properties \
+                --ignore-formatted
+          volumeMounts:
+            - name: kafka-data
+              mountPath: /var/lib/kafka/data
+      containers:
+        - name: kafka
+          image: apache/kafka:3.7.0
+          ports:
+            - containerPort: 9096
+              name: plaintext
+            - containerPort: 9097
+              name: controller
+          envFrom:
+            - configMapRef:
+                name: kafka-config
+          volumeMounts:
+            - name: kafka-data
+              mountPath: /var/lib/kafka/data
+          livenessProbe:
+            tcpSocket:
+              port: 9096
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          readinessProbe:
+            tcpSocket:
+              port: 9096
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: kafka-data
+          persistentVolumeClaim:
+            claimName: kafka-pvc
