@@ -29,12 +29,12 @@ public class CreateOrderService implements CreateOrderUseCase {
 
      @Override
      @Transactional
-     public CreateOrderResult execute(CreateOrderCommand command) {
+     public CreateOrderResult execute(CreateOrderCommand command, String correlationId) {
        Order order = orderDomainService.buildNewOrder(command.product(), command.quantity());
 
-       Order savedOrder = orderRepository.save(order);
+       Order savedOrder = orderRepository.save(order, correlationId);
 
-       eventPublisher.publishOrderCreated(savedOrder);
+       eventPublisher.publishOrderCreated(savedOrder, correlationId);
 
        return new CreateOrderResult(savedOrder.getId(), savedOrder.getProduct(), savedOrder.getQuantity());
      }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepositoryPort {
-    Order save(Order order);
-    Optional<Order> findById(Long id);
-    List<Order> findAll();
+    Order save(Order order, String  correlationId);
+    Optional<Order> findById(Long id,  String  correlationId);
+    List<Order> findAll(String correlationId);
 }

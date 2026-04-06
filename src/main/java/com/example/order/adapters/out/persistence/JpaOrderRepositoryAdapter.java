@@ -23,20 +23,20 @@ public class JpaOrderRepositoryAdapter implements OrderRepositoryPort {
 
 
     @Override
-    public Order save(Order order) {
+    public Order save(Order order,  String  correlationId) {
         OrderEntity entity = entityMapper.toEntity(order);
         OrderEntity savedEntity = repository.save(entity);
         return entityMapper.toDomain(savedEntity);
     }
 
     @Override
-    public Optional<Order> findById(Long id) {
+    public Optional<Order> findById(Long id, String  correlationId) {
         return repository.findById(id)
                 .map(entityMapper::toDomain);
     }
 
     @Override
-    public List<Order> findAll() {
+    public List<Order> findAll(String correlationId) {
         return repository.findAll(Sort.by("product"))
                 .stream()
                 .map(entityMapper::toDomain)

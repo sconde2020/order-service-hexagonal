@@ -11,6 +11,8 @@ import com.example.order.application.port.in.GetOrderListUseCase;
 import com.example.order.application.port.in.GetOrderUseCase;
 import com.example.order.application.result.CreateOrderResult;
 import com.example.order.application.result.GetOrderResult;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,24 +38,57 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<CreateOrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
+    @Parameter(
+            name = "correlationId",
+            description = "Unique identifier for tracing the request across services",
+            required = true,
+            example = "123e4567-e89b-12d3-a456-426614174000"
+    )
+    public ResponseEntity<CreateOrderResponse> createOrder(
+            @RequestHeader String correlationId,
+            @RequestBody CreateOrderRequest request
+    ) {
         CreateOrderCommand command = dtoMapper.toCommand(request);
-        CreateOrderResult result = createOrderUseCase.execute(command);
+        CreateOrderResult result = createOrderUseCase.execute(command, correlationId);
         CreateOrderResponse response = dtoMapper.toResponse(result);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GetOrderResponse> getOrderById(Long orderId) {
-        GetOrderResult result = getOrderUseCase.execute(orderId);
+    @Parameter(
+            name = "correlationId",
+            description = "Unique identifier for tracing the request across services",
+            required = true,
+            example = "123e4567-e89b-12d3-a456-426614174000"
+    )
+    @Parameter(
+            name = "id",
+            in = ParameterIn.PATH,
+            description = "Unique identifier of the order to retrieve",
+            required = true,
+            example = "1"
+    )
+    public ResponseEntity<GetOrderResponse> getOrderById(
+            @RequestHeader String correlationId,
+            @PathVariable("id") Long orderId
+    ) {
+        GetOrderResult result = getOrderUseCase.execute(orderId, correlationId);
         GetOrderResponse response = dtoMapper.toResponse(result);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<GetOrderListResponse>> getAllOrders() {
+    @Parameter(
+            name = "correlationId",
+            description = "Unique identifier for tracing the request across services",
+            required = true,
+            example = "123e4567-e89b-12d3-a456-426614174000"
+    )
+    public ResponseEntity<List<GetOrderListResponse>> getAllOrders(
+            @RequestHeader String correlationId
+    ) {
         List<GetOrderListResponse> response =
-                getOrderListUseCase.execute().stream()
+                getOrderListUseCase.execute(correlationId).stream()
                 .map(dtoMapper::toResponse)
                 .toList();
         return ResponseEntity.ok(response);

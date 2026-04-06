@@ -18,8 +18,8 @@ public class GetOrderListService implements GetOrderListUseCase {
     }
 
     @Override
-    public List<GetOrderListResult> execute() {
-        return this.orderRepository.findAll().stream()
+    public List<GetOrderListResult> execute(String correlationId) {
+        return this.orderRepository.findAll(correlationId).stream()
                 .map(this::mapToResult).toList();
     }
 

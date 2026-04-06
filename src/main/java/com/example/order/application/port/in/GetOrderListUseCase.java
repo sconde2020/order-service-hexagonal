@@ -5,5 +5,5 @@ import com.example.order.application.result.GetOrderListResult;
 import java.util.List;
 
 public interface GetOrderListUseCase {
-    List<GetOrderListResult> execute();
+    List<GetOrderListResult> execute(String correlationId);
 }

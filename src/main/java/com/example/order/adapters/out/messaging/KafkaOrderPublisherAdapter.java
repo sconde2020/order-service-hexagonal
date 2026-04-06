@@ -21,7 +21,7 @@ public class KafkaOrderPublisherAdapter implements OrderEventPublisherPort {
     }
 
     @Override
-    public void publishOrderCreated(Order order) {
+    public void publishOrderCreated(Order order, String correlationId) {
         String currentTimestamp = LocalDateTime.now().toString();
         OrderEvent event = new OrderEvent(currentTimestamp, order.getId());
         try {

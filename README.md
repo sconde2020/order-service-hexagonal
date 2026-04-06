@@ -143,7 +143,7 @@ src/main/java/com/example/order/
 │       └── OrderDomainService.java
 └── infrastructure/
     ├── aspect/
-    │   └── ControllerAspect.java
+    │   └── LoggingAspect.java
     ├── config/
     │   └── DomainConfig.java
     ├── exception/
@@ -298,13 +298,14 @@ cd k8s
 # Create an order
 curl -X POST http://localhost:8080/orders \
   -H "Content-Type: application/json" \
+  -H "CorrelationId: 123e4567-e89b-12d3-a456-426614174000" \
   -d '{"product": "Laptop", "quantity": 2}'
 
 # Get order by ID
-curl http://localhost:8080/orders/1
+curl -H "CorrelationId: 123e4567-e89b-12d3-a456-426614174000" http://localhost:8080/orders/1
 
 # Get all orders
-curl http://localhost:8080/orders
+curl -H "CorrelationId: 123e4567-e89b-12d3-a456-426614174000" http://localhost:8080/orders
 ```
 
 ## 📨 Kafka Events

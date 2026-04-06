@@ -13,7 +13,6 @@ spring:
     dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: create
-    show-sql: true
     defer-datasource-initialization: true # Ensure Hibernate initializes after the datasource
     properties:
       hibernate:

@@ -16,9 +16,9 @@ public class GetOrderService implements GetOrderUseCase {
     }
 
     @Override
-    public GetOrderResult execute(Long orderId) {
+    public GetOrderResult execute(Long orderId,  String correlationId) {
         return orderRepositoryPort
-                .findById(orderId)
+                .findById(orderId, correlationId)
                 .map(order -> new GetOrderResult(order.getId(), order.getProduct(), order.getQuantity()))
                 .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
     }
